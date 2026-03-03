@@ -1,0 +1,36 @@
+name: Explorando o Android 14
+on: 
+  workflow_dispatch: # Permite que você dê o "Play" manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preparando o Terreno
+        uses: actions/checkout@v4
+
+      - name: Instalando as Ferramentas de Dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl git python3
+
+      - name: Configurando o Google Repo
+        run: |
+          mkdir ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+          export PATH=~/bin:$PATH
+
+      - name: Inicializando o Android 14 (AOSP)
+        run: |
+          mkdir android-source && cd android-source
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          # O truque do --depth=1 para não demorar 10 horas
+          ~/bin/repo init -u https://android.googlesource.com/platform/manifest -b android-14.0.0_r1 --depth=1
+
+      - name: Mapeando as Pastas do Sistema
+        run: |
+          cd android-source
+          echo "--- ESTRUTURA DE PASTAS DO ANDROID 14 ---"
+          ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /'
